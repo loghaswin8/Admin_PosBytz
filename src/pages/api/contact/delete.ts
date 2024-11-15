@@ -4,7 +4,6 @@ import { contactHandlers } from '../../../server/server/contact'; // Adjust path
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.query;
 
-  // Check if the ID is provided for DELETE request
   if (!id) {
     return res.status(400).json({ error: 'ID is required for DELETE request' });
   }
