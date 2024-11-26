@@ -12,8 +12,18 @@ import ErpSection from '@/components/home/ErpSection';
 import FaqSection from '@/components/home/FaqSection';
 import BusinessSection from '@/components/home/BusinessSection';
 import IntroClient from '../server/client/home';
+import nookies, { parseCookies } from 'nookies';
+import { redirect } from 'next/dist/server/api-utils';
+import { useRouter } from 'next/router';
+import { GetServerSidePropsContext } from 'next';  // Import the type
+
+
 
 const HomeSettings = () => {
+  const router = useRouter();
+
+  
+
   const [introData, setIntroData] = useState({
     heading: '',
     paragraph: '',
@@ -64,7 +74,6 @@ const HomeSettings = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
 
-  useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await IntroClient.fetchIntro('1'); 
@@ -84,8 +93,14 @@ const HomeSettings = () => {
       }
     };
 
-    fetchData();
-  }, []);
+    // useEffect(() => {
+    //   const cookies = sessionStorage.getItem('token');
+    //   if (!cookies) {
+    //     router.push('/'); // Redirect to login if no token is found
+    //   } else {
+    //     fetchData(); // Fetch data if token exists
+    //   }
+    // }, [router]);
 
   const handleUpdateChanges = async () => {
     try {
@@ -112,6 +127,10 @@ const HomeSettings = () => {
       alert('Failed to update Home Page.');
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  },[])
 
   const handleToggleEditMode = () => {
     setIsEditing((prev) => !prev);
@@ -203,3 +222,39 @@ const HomeSettings = () => {
 };
 
 export default HomeSettings;
+
+export const getServerSideProps = async (context) => {
+  const { req, res } = context;  
+
+  const cookies = req.headers.cookie; 
+
+  const parsedCookies = cookies
+    ? Object.fromEntries(cookies.split('; ').map(c => c.split('=')))
+    : {};
+
+  console.log('Parsed cookies:', parsedCookies);
+
+  const token = parsedCookies.token;  
+
+  if (!token || token.trim() === '') {
+    console.log("Redirecting to login due to missing or empty token...");
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+
+  return {
+    props: {
+      token,  
+    },
+  };
+};
+
+
+
+
+

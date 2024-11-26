@@ -1,15 +1,28 @@
 import axios from 'axios';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 
 dotenv.config();
 
 const NESTJS_BASE_URL = process.env.NESTJS_BASE_URL;
 
 class AboutServer {
-  // Fetch about data from the server (GET)
-  public async fetchAbout(): Promise<any> {
+  private getAuthHeaders(token: string) {
+    console.log('Server Token:', token); // Log to verify token retrieval
+
+    if (!token) {
+      throw new Error('Authentication data missing');
+    }
+
+    return {
+      'Authorization': token,
+    };
+  }
+
+  public async fetchAbout(token: string): Promise<any> {
     try {
-      const response = await axios.get(`${NESTJS_BASE_URL}/about`);
+      const headers = this.getAuthHeaders(token);
+      const response = await axios.get(`${NESTJS_BASE_URL}/about`, { headers });
+      console.log('Response from backend server:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching about data from server:', error);
@@ -17,10 +30,10 @@ class AboutServer {
     }
   }
 
-  // Create about data on the server (POST)
-  public async createAbout(aboutData: object): Promise<any> {
+  public async createAbout(aboutData: object, token: string): Promise<any> {
     try {
-      const response = await axios.post(`${NESTJS_BASE_URL}/about`, aboutData);
+      const headers = this.getAuthHeaders(token);
+      const response = await axios.post(`${NESTJS_BASE_URL}/about`, aboutData, { headers });
       return response.data;
     } catch (error) {
       console.error('Error creating about data:', error);
@@ -28,10 +41,11 @@ class AboutServer {
     }
   }
 
-  // Update about data on the server (PUT)
-  public async updateAbout(aboutData: object): Promise<any> {
+  public async updateAbout(aboutData: object, token: string): Promise<any> {
     try {
-      const response = await axios.put(`${NESTJS_BASE_URL}/about`, aboutData);
+      const headers = this.getAuthHeaders(token);
+      const response = await axios.put(`${NESTJS_BASE_URL}/about`, aboutData, { headers });
+      console.log('Response in server:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error updating about data:', error);
@@ -39,10 +53,10 @@ class AboutServer {
     }
   }
 
-  // Delete about data from the server (DELETE)
-  public async deleteAbout(id: string): Promise<any> {
+  public async deleteAbout(id: string, token: string): Promise<any> {
     try {
-      const response = await axios.delete(`${NESTJS_BASE_URL}/about/${id}`);
+      const headers = this.getAuthHeaders(token);
+      const response = await axios.delete(`${NESTJS_BASE_URL}/about/${id}`, { headers });
       return response.data;
     } catch (error) {
       console.error('Error deleting about data:', error);
@@ -51,10 +65,8 @@ class AboutServer {
   }
 }
 
-// Export the instance of AboutServer to use in handlers
 export const aboutServer = new AboutServer();
 
-// Handlers Object for server-side requests
 export const aboutHandlers = {
   get: aboutServer.fetchAbout.bind(aboutServer),
   post: aboutServer.createAbout.bind(aboutServer),

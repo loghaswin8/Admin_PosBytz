@@ -5,6 +5,7 @@ import HeroSection from '@/components/contact/HeroSection';
 import HeaderSection from '@/components/contact/HeaderSection';
 import ContactForm from '@/components/contact/ContactForm';
 import ContactClient from '../server/client/contact';
+import { parseCookies } from 'nookies';
 
 const ContactSettings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -14,31 +15,35 @@ const ContactSettings = () => {
   const [formPlaceholders, setFormPlaceholders] = useState(null);
   const [submitButton, setSubmitButton] = useState('');
 
-  useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await ContactClient.fetchContact('3'); // Use the correct ID or handle dynamically
+        const data = await ContactClient.fetchContact('3');
         console.log("contact data: ", data);
-
-        setNavbarData(data.data.navbar);
-        setHeroSectionData(data.data.heroSection);
-        setHeaderData(data.data.header);
-        setFormPlaceholders(data.data.formPlaceholders);
-        setSubmitButton(data.data.submitButton);
+  
+        if (data && data.navbar) {
+          setNavbarData(data.navbar);
+          setHeroSectionData(data.heroSection || null);
+          setHeaderData(data.header || null);
+          setFormPlaceholders(data.formPlaceholders || null);
+          setSubmitButton(data.submitButton || '');
+        } else {
+          console.error('Received data is malformed:', data);
+        }
       } catch (error) {
         console.error('Error fetching contact data:', error);
       }
     };
+    
+    useEffect(() => {
+      fetchData();
+    }, [])
+  
+  
 
-    fetchData();
-  }, []);
-
-  // Toggle Edit Mode
   const handleToggleEditMode = () => {
     setIsEditing((prev) => !prev);
   };
 
-  // Handle Update Changes
   const handleUpdateChanges = async () => {
     try {
       const updatedContactData = {
@@ -50,7 +55,7 @@ const ContactSettings = () => {
 
       const response = await ContactClient.updateContact(updatedContactData);
       console.log('Contact data updated successfully:', response);
-      setIsEditing(false); // Exit edit mode after saving
+      setIsEditing(false); 
     } catch (error) {
       console.error('Error updating contact data:', error);
     }
@@ -61,7 +66,6 @@ const ContactSettings = () => {
       <div className='pl-[17%] p-8 bg-white'>
         <h1 className="text-3xl font-bold mb-6">Edit Contact Page Settings</h1>
 
-        {/* Edit/Cancel Button */}
         <div className="flex justify-end items-center mb-6">
           <button
             onClick={handleToggleEditMode}
@@ -70,7 +74,6 @@ const ContactSettings = () => {
             {isEditing ? 'Cancel Edit' : 'Edit'}
           </button>
 
-          {/* Save Changes Button */}
           {isEditing && (
             <button
               onClick={handleUpdateChanges}
@@ -81,28 +84,27 @@ const ContactSettings = () => {
           )}
         </div>
 
-        {/* Content Components in Grid Layout */}
         <div>
           <NavbarSection
             isEditing={isEditing}
             navbar={navbarData}
-            setNavbarData={setNavbarData} // Pass setter to child
+            setNavbarData={setNavbarData}
           />
           <HeroSection
             isEditing={isEditing}
             hero={heroSectionData}
-            onUpdate={setHeroSectionData} // Pass setter to child
+            onUpdate={setHeroSectionData} 
           />
           <HeaderSection
             isEditing={isEditing}
             header={headerData}
-            setHeaderData={setHeaderData} // Pass setter to child
+            setHeaderData={setHeaderData}
           />
           <ContactForm 
             isEditing={isEditing} 
             formPlaceholders={formPlaceholders} 
             submitButton={submitButton} 
-            setSubmitButton={setSubmitButton} // Pass setter to child
+            setSubmitButton={setSubmitButton}
           />
         </div>
       </div>
@@ -111,3 +113,34 @@ const ContactSettings = () => {
 };
 
 export default ContactSettings;
+
+export const getServerSideProps = async (context) => {
+  const { req, res } = context;  
+
+  const cookies = req.headers.cookie; 
+
+  const parsedCookies = cookies
+    ? Object.fromEntries(cookies.split('; ').map(c => c.split('=')))
+    : {};
+
+  console.log('Parsed cookies:', parsedCookies);
+
+  const token = parsedCookies.token;  
+
+  if (!token || token.trim() === '') {
+    console.log("Redirecting to login due to missing or empty token...");
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+
+  return {
+    props: {
+      token,  
+    },
+  };
+};

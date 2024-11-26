@@ -1,22 +1,43 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import FormInput from '../components/FormInput';
-import Link from 'next/link';
+import LoginClient from '../server/client/login'; // Ensure correct import path
+import { setCookie } from 'nookies';
+import Cookies from 'js-cookie';
+
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login data:', formData);
+    setError(null);
 
-    // Redirect to home page after login
-    router.push('/');
+    if (!formData.email || !formData.password) {
+      setError('Email and password are required');
+      return;
+    }
+
+    const loginClient = new LoginClient();
+
+    try {
+      const result = await loginClient.loginUser(formData);
+      Cookies.set('token', result.token, { expires: 1});
+      sessionStorage.setItem('token', result.token);
+      const token = sessionStorage.getItem('token');  // Store token securely
+      document.cookie = `token=${token}; path=/;`;
+
+      router.push('/'); // Redirect to protected route
+    } catch (err: any) {
+      console.error('Login error:', err.message);
+      setError(err.message || 'Login failed');
+    }
   };
 
   return (
@@ -46,15 +67,10 @@ const Login = () => {
           >
             Login
           </button>
+          {error && <p className="text-red-500 text-center mt-2">{error}</p>}
         </form>
-        <p className="mt-4 text-center">
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="text-blue-500 hover:underline">
-            Register here
-          </Link>
-        </p>
       </div>
-    </div>
+    </div>  
   );
 };
 

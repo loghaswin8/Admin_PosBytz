@@ -1,14 +1,24 @@
 import axios from 'axios';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 
 dotenv.config();
 
 const NESTJS_BASE_URL = process.env.NESTJS_BASE_URL;
 
 class IntroServer {
-  public async fetchIntro(): Promise<any> {
+  public async fetchIntro(token: string ): Promise<any> {
     try {
-      const response = await axios.get(`${NESTJS_BASE_URL}/home`);
+      console.log('Server Token:', token);
+      // console.log('Server User ID:', userId);
+      
+      const response = await axios.get(`${NESTJS_BASE_URL}/home`, {
+        headers: {
+          Authorization: token,
+          // 'X-User-ID': userId, 
+        },
+      });
+
+      console.log('Response from backend server:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching intro data from server:', error);
@@ -16,9 +26,14 @@ class IntroServer {
     }
   }
 
-  public async createIntro(introData: object): Promise<any> {
+  public async createIntro(introData: object, token: string, userId: string): Promise<any> {
     try {
-      const response = await axios.post(`${NESTJS_BASE_URL}/home`, introData);
+      const response = await axios.post(`${NESTJS_BASE_URL}/home`, introData, {
+        headers: {
+          Authorization: token,
+          'X-User-ID': userId,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error('Error creating intro data:', error);
@@ -26,10 +41,14 @@ class IntroServer {
     }
   }
 
-  public async updateIntro(introData: object): Promise<any> {
+  public async updateIntro(introData: object, token: string): Promise<any> {
     try {
-      const response = await axios.put(`${NESTJS_BASE_URL}/home`, introData);
-      console.log("responssasas in server", response?.data)
+      const response = await axios.put(`${NESTJS_BASE_URL}/home`, introData, {
+        headers: {
+          Authorization: token,
+        },
+      });
+      console.log('Response in server:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error updating intro data:', error);
@@ -37,9 +56,14 @@ class IntroServer {
     }
   }
 
-  public async deleteIntro(id: string): Promise<any> {
+  public async deleteIntro(id: string, token: string, userId: string): Promise<any> {
     try {
-      const response = await axios.delete(`${NESTJS_BASE_URL}/home/${id}`);
+      const response = await axios.delete(`${NESTJS_BASE_URL}/home/${id}`, {
+        headers: {
+          Authorization: token,
+          'X-User-ID': userId,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error('Error deleting intro data:', error);

@@ -1,57 +1,70 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 class CareerClient {
   private baseUrl: string;
 
   constructor() {
-    // Base URL for API requests
     this.baseUrl = '/api/career';
   }
 
-  // Fetch career data from the server (GET)
+  private getAuthHeaders() {
+    const token = Cookies.get('token') || sessionStorage.getItem('token');
+    console.log('Session Token:', token); 
+
+    if (!token ) {
+      throw new Error('Authentication data missing');
+    }
+
+    return {
+      'Authorization': token,
+    };
+  }
+
   public async fetchCareer(id: string): Promise<any> {
     try {
-      const response = await axios.get(`/api/career/get?id=${id}`, {
-        headers: {
-          'Content-Type': 'application/json', // Example: Adjust if needed
-        },
-      });
-      return response.data;
+      const headers = this.getAuthHeaders();
+      const response = await axios.get(`${this.baseUrl}/get?id=${id}`, { headers });
+      console.log('Fetched career data:', response.data);
+      return response.data.data;
     } catch (error) {
       console.error('Error fetching career data:', error);
-      throw new Error('Error fetching career data');
+      throw error;
     }
   }
 
-  // Update career data on the server (PUT)
   public async updateCareer(careerData: object): Promise<any> {
     try {
-      const response = await axios.put(`${this.baseUrl}/put`, careerData);
-      return response.data; // Return the updated data
+      const headers = this.getAuthHeaders();
+      const response = await axios.put(`${this.baseUrl}/put`, careerData, { headers });
+      console.log('Updated career data:', response.data);
+      return response.data;
     } catch (error) {
-      console.error('Error updating career data from client:', error);
+      console.error('Error updating career data:', error);
       throw error;
     }
   }
 
-  // Create new career data on the server (POST)
   public async createCareer(careerData: object): Promise<any> {
     try {
-      const response = await axios.post(`${this.baseUrl}/post`, careerData);
-      return response.data; // Return the newly created data
+      const headers = this.getAuthHeaders();
+      const response = await axios.post(`${this.baseUrl}/post`, careerData, { headers });
+      console.log('Created career data:', response.data);
+      return response.data;
     } catch (error) {
-      console.error('Error creating career data from client:', error);
+      console.error('Error creating career data:', error);
       throw error;
     }
   }
 
-  // Delete career data from the server (DELETE)
   public async deleteCareer(id: string): Promise<any> {
     try {
-      const response = await axios.delete(`${this.baseUrl}/delete?id=${id}`);
-      return response.data; // Return the result of the deletion
+      const headers = this.getAuthHeaders();
+      const response = await axios.delete(`${this.baseUrl}/delete?id=${id}`, { headers });
+      console.log('Deleted career data:', response.data);
+      return response.data;
     } catch (error) {
-      console.error('Error deleting career data from client:', error);
+      console.error('Error deleting career data:', error);
       throw error;
     }
   }

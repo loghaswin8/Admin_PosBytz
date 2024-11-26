@@ -1,4 +1,6 @@
 import Layout from '../components/Layout';
+import nookies, { parseCookies } from 'nookies';
+
 
 const Home = () => {
   return (
@@ -11,3 +13,26 @@ const Home = () => {
 };
 
 export default Home;
+
+export const getServerSideProps = async (context) => {
+  console.log(context);
+  const cookies = parseCookies(context);
+  
+  console.log('All cookies:', cookies);
+
+  const token = cookies.token;
+
+  if (!token || token.trim() === '') {
+    console.log("Redirecting to login due to missing or empty token...");
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {}, 
+  };
+};

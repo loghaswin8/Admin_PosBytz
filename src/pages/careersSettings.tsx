@@ -8,6 +8,7 @@ import OpenPositionSection from '@/components/careers/OpenPositionSection';
 import PrinciplesSection from '@/components/careers/PrinciplesSection';
 import FunAtWorkSection from '@/components/careers/FunAtWorkSection';
 import CareerClient from '../server/client/career';
+import { parseCookies } from 'nookies';
 
 const CareersSettings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -19,34 +20,33 @@ const CareersSettings = () => {
   const [principlesData, setPrinciplesData] = useState(null);
   const [funAtWorkData, setFunAtWorkData] = useState(null);
 
-  useEffect(() => {
+  
     const fetchData = async () => {
       try {
-        const data = await CareerClient.fetchCareer('5'); // Use the correct ID or handle dynamically
-        console.log("career data: ",data);  
+        const data = await CareerClient.fetchCareer('5');
+        console.log("career data: ", data);
 
-        setTopContentData(data.data.topContent);
-        setWhereWeWorkData(data.data.whereWeWork);
-        setCoreValuesData(data.data.coreValues);
-        setWorkLifeData(data.data.worklife);
-        setOpenPositionData(data.data.openPosition);
-        setPrinciplesData(data.data.principles);
-        setFunAtWorkData(data.data.funAtWork);
+        setTopContentData(data.topContent || null);
+        setWhereWeWorkData(data.whereWeWork || []);
+        setCoreValuesData(data.coreValues || null);
+        setWorkLifeData(data.worklife || null);
+        setOpenPositionData(data.openPosition || []);
+        setPrinciplesData(data.principles || null);
+        setFunAtWorkData(data.funAtWork || null);
 
       } catch (error) {
         console.error('Error fetching career data:', error);
       }
     };
+    useEffect(()=> {
+      fetchData();
+    }, []);
 
-    fetchData();
-  }, []);
 
-  // Toggle Edit Mode
   const handleToggleEditMode = () => {
     setIsEditing((prev) => !prev);
   };
 
-  // Save Changes and Exit Edit Mode
   const handleSaveChanges = async () => {
     try {
       console.log('Saving Changes for all components');
@@ -60,10 +60,9 @@ const CareersSettings = () => {
         funAtWork: funAtWorkData,
       };
 
-      // Call the update function from the client to update data in the server
       const response = await CareerClient.updateCareer(updatedCareerData);
       console.log('Updated career data:', response);
-      setIsEditing(false); // Exit edit mode after successful update
+      setIsEditing(false);
     } catch (error) {
       console.error('Error saving changes:', error);
     }
@@ -74,7 +73,6 @@ const CareersSettings = () => {
       <div className='pl-[17%] p-8 bg-white'>
         <h1 className="text-3xl font-bold mb-6">Edit Careers Page Settings</h1>
 
-        {/* Edit/Cancel Button */}
         <div className="flex justify-end items-center mb-6">
           <button
             onClick={handleToggleEditMode}
@@ -83,7 +81,6 @@ const CareersSettings = () => {
             {isEditing ? 'Cancel Edit' : 'Edit'}
           </button>
 
-          {/* Save Changes Button */}
           {isEditing && (
             <button
               onClick={handleSaveChanges}
@@ -94,42 +91,41 @@ const CareersSettings = () => {
           )}
         </div>
 
-        {/* Content Components in Grid Layout */}
         <div>
           <TopContentSection
             isEditing={isEditing}
             topContent={topContentData}
-            setTopContentData={setTopContentData} // Pass setter to child
+            setTopContentData={setTopContentData} 
           />
           <WhereWeWorkSection
             isEditing={isEditing}
             whereWeWorkData={whereWeWorkData}
-            setWhereWeWorkData={setWhereWeWorkData} // Pass setter to child
+            setWhereWeWorkData={setWhereWeWorkData}
           />
           <CoreValuesSection
             isEditing={isEditing}
             coreValues={coreValuesData}
-            setCoreValuesData={setCoreValuesData} // Pass setter to child
+            setCoreValuesData={setCoreValuesData}
           />
           <WorkLifeSection
             isEditing={isEditing}
             workLifeData={workLifeData}
-            setWorkLifeData={setWorkLifeData} // Pass setter to child
+            setWorkLifeData={setWorkLifeData}
           />
           <OpenPositionSection
             isEditing={isEditing}
             openPositions={openPositionData}
-            setOpenPositionData={setOpenPositionData} // Pass setter to child
+            setOpenPositionData={setOpenPositionData} 
           />
           <PrinciplesSection
             isEditing={isEditing}
             principles={principlesData}
-            setPrinciplesData={setPrinciplesData} // Pass setter to child
+            setPrinciplesData={setPrinciplesData} 
           />
           <FunAtWorkSection
             isEditing={isEditing}
             funAtWork={funAtWorkData}
-            setFunAtWorkData={setFunAtWorkData} // Pass setter to child
+            setFunAtWorkData={setFunAtWorkData} 
           />
         </div>
       </div>
@@ -138,3 +134,34 @@ const CareersSettings = () => {
 };
 
 export default CareersSettings;
+
+export const getServerSideProps = async (context) => {
+  const { req, res } = context;  
+
+  const cookies = req.headers.cookie; 
+
+  const parsedCookies = cookies
+    ? Object.fromEntries(cookies.split('; ').map(c => c.split('=')))
+    : {};
+
+  console.log('Parsed cookies:', parsedCookies);
+
+  const token = parsedCookies.token;  
+
+  if (!token || token.trim() === '') {
+    console.log("Redirecting to login due to missing or empty token...");
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+
+  return {
+    props: {
+      token,  
+    },
+  };
+};

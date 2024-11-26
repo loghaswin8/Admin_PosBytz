@@ -4,13 +4,12 @@ import { introHandlers } from '../../../server/server/home';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.query;
 
-  // Check if the ID is provided for DELETE request
   if (!id) {
     return res.status(400).json({ error: 'ID is required for DELETE request' });
   }
 
   try {
-    const result = await introHandlers.delete(id as string); // Handle DELETE logic
+    const result = await introHandlers.delete(id as string); 
     res.status(200).json({ data: result });
   } catch (error) {
     console.error('Error in DELETE /api/home:', error);

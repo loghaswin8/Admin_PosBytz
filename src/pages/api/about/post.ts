@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { aboutHandlers } from '../../../server/server/about'; // Adjust path accordingly
+import { aboutHandlers } from '../../../server/server/about';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { body } = req;
@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const result = await aboutHandlers.post(body); // Handle POST logic
+    const result = await aboutHandlers.post(body);
     res.status(200).json({ data: result });
   } catch (error) {
     console.error('Error in POST /api/about:', error);

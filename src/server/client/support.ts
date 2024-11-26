@@ -1,57 +1,70 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 class SupportClient {
   private baseUrl: string;
 
   constructor() {
-    // Base URL for API requests
     this.baseUrl = '/api/support';
   }
 
-  // Fetch support data from the server (GET)
+  private getAuthHeaders() {
+    const token = Cookies.get('token') || sessionStorage.getItem('token');
+    console.log('Session Token:', token);  
+
+    if (!token ) {
+      throw new Error('Authentication data missing');
+    }
+
+    return {
+      'Authorization': token,
+    };
+  }
+
   public async fetchSupport(id: string): Promise<any> {
     try {
-      const response = await axios.get(`/api/support/get?id=${id}`, {
-        headers: {
-          'Content-Type': 'application/json', // Example: Adjust if needed
-        },
-      });
-      return response.data;
+      const headers = this.getAuthHeaders();
+      const response = await axios.get(`${this.baseUrl}/get?id=${id}`, {headers});
+      console.log('Fetched support data:', response.data);
+      return response.data.data;
     } catch (error) {
       console.error('Error fetching support data:', error);
-      throw new Error('Error fetching support data');
+      throw error;
     }
   }
 
-  // Update support data on the server (PUT)
   public async updateSupport(supportData: object): Promise<any> {
     try {
-      const response = await axios.put(`${this.baseUrl}/put`, supportData);
-      return response.data; // Return the updated data
+      const headers = this.getAuthHeaders();
+      const response = await axios.put(`${this.baseUrl}/put`, supportData, { headers });
+      console.log('Updated support data:', response.data);
+      return response.data;
     } catch (error) {
-      console.error('Error updating support data from client:', error);
+      console.error('Error updating support data:', error);
       throw error;
     }
   }
 
-  // Create new support data on the server (POST)
   public async createSupport(supportData: object): Promise<any> {
     try {
-      const response = await axios.post(`${this.baseUrl}/post`, supportData);
-      return response.data; // Return the newly created data
+      const headers = this.getAuthHeaders();
+      const response = await axios.post(`${this.baseUrl}/post`, supportData, { headers });
+      console.log('Created support data:', response.data);
+      return response.data;
     } catch (error) {
-      console.error('Error creating support data from client:', error);
+      console.error('Error creating support data:', error);
       throw error;
     }
   }
 
-  // Delete support data from the server (DELETE)
   public async deleteSupport(id: string): Promise<any> {
     try {
-      const response = await axios.delete(`${this.baseUrl}/delete?id=${id}`);
-      return response.data; // Return the result of the deletion
+      const headers = this.getAuthHeaders();
+      const response = await axios.delete(`${this.baseUrl}/delete?id=${id}`, { headers });
+      console.log('Deleted support data:', response.data);
+      return response.data;
     } catch (error) {
-      console.error('Error deleting support data from client:', error);
+      console.error('Error deleting support data:', error);
       throw error;
     }
   }

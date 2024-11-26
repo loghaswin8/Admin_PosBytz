@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const result = await careerHandlers.post(body); // Handle POST logic
+    const result = await careerHandlers.post(body);
     res.status(200).json({ data: result });
   } catch (error) {
     console.error('Error in POST /api/career:', error);

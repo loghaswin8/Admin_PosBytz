@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { contactHandlers } from '../../../server/server/contact'; // Adjust path accordingly
+import { contactHandlers } from '../../../server/server/contact'; 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.query;
@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const result = await contactHandlers.delete(id as string); // Handle DELETE logic
+    const result = await contactHandlers.delete(id as string); 
     res.status(200).json({ data: result });
   } catch (error) {
     console.error('Error in DELETE /api/contact:', error);

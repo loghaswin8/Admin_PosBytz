@@ -6,10 +6,13 @@ dotenv.config();
 const NESTJS_BASE_URL = process.env.NESTJS_BASE_URL;
 
 class CareerServer {
-  // Fetch career data from the server (GET)
-  public async fetchCareer(): Promise<any> {
+  public async fetchCareer(token: string): Promise<any> {
     try {
-      const response = await axios.get(`${NESTJS_BASE_URL}/career`);
+      const response = await axios.get(`${NESTJS_BASE_URL}/career`, {
+        headers: {
+          Authorization: token,
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching career data from server:', error);
@@ -17,7 +20,6 @@ class CareerServer {
     }
   }
 
-  // Create career data on the server (POST)
   public async createCareer(careerData: object): Promise<any> {
     try {
       const response = await axios.post(`${NESTJS_BASE_URL}/career`, careerData);
@@ -28,10 +30,13 @@ class CareerServer {
     }
   }
 
-  // Update career data on the server (PUT)
-  public async updateCareer(careerData: object): Promise<any> {
+  public async updateCareer(careerData: object, token: string): Promise<any> {
     try {
-      const response = await axios.put(`${NESTJS_BASE_URL}/career`, careerData);
+      const response = await axios.put(`${NESTJS_BASE_URL}/career`, careerData, {
+        headers: {
+          Authorization: token,
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error updating career data:', error);
@@ -39,7 +44,6 @@ class CareerServer {
     }
   }
 
-  // Delete career data from the server (DELETE)
   public async deleteCareer(id: string): Promise<any> {
     try {
       const response = await axios.delete(`${NESTJS_BASE_URL}/career/${id}`);
@@ -51,10 +55,8 @@ class CareerServer {
   }
 }
 
-// Export the instance of CareerServer to use in handlers
 export const careerServer = new CareerServer();
 
-// Handlers Object for server-side requests
 export const careerHandlers = {
   get: careerServer.fetchCareer.bind(careerServer),
   post: careerServer.createCareer.bind(careerServer),

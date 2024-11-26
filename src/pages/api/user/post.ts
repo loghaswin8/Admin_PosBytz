@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { contactHandlers } from '../../../server/server/contact';
+import { registerHandlers } from '../../../server/server/register';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { body } = req;
@@ -9,10 +9,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const result = await contactHandlers.post(body); 
+    // Use the registerHandlers to handle user registration
+    const result = await registerHandlers.post(body); 
     res.status(200).json({ data: result });
   } catch (error) {
-    console.error('Error in POST /api/contact:', error);
+    console.error('Error in POST /api/user:', error);
     res.status(500).json({ error: 'Failed to create contact data' });
   }
 }

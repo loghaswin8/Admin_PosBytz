@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Layout from '../components/Layout';
 import HeroSection from '@/components/about/HeroSection';
 import NavbarSection from '@/components/about/NavbarSection';
@@ -6,6 +6,7 @@ import AboutSection from '@/components/about/AboutSection';
 import LogosSection from '@/components/about/LogosSection';
 import HowToReachSection from '@/components/about/HowToReachSection';
 import AboutClient from '../server/client/about';
+import { parseCookies } from 'nookies';
 
 const AboutSettings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -16,32 +17,36 @@ const AboutSettings = () => {
   const [productTextData, setProductTextData] = useState('');
   const [howToReachData, setHowToReachData] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await AboutClient.fetchAbout('2'); // Use the correct ID or handle dynamically
-        console.log("About data: ", data);
+  const fetchData = async () => {
+    try {
+      const data = await AboutClient.fetchAbout('2');
+      console.log("About data: ", data);
 
-        setHeroData(data.data.heroSection);
-        setNavbarData(data.data.navbar);
-        setAboutData(data.data.aboutSection[0]);
-        setLogosData(data.data.logos);
-        setProductTextData(data.data.productText);
-        setHowToReachData(data.data.howToReach);
-      } catch (error) {
-        console.error('Error fetching about data:', error);
+      if (data && data.heroSection && data.navbar && data.aboutSection && Array.isArray(data.aboutSection)) {
+        setHeroData(data.heroSection || null); 
+        setNavbarData(data.navbar || null);
+        setAboutData(data.aboutSection[0] || null);
+        setLogosData(data.logos || null);
+        setProductTextData(data.productText || '');
+        setHowToReachData(data.howToReach || null);
+      } else {
+        console.error('Invalid data structure', data);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching about data:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
-  }, []);
+  }, [])
 
-  // Toggle Edit Mode
+
+
   const handleToggleEditMode = () => {
     setIsEditing((prev) => !prev);
   };
 
-  // Handle Update Changes
   const handleUpdateChanges = async () => {
     try {
       const updatedAboutData = {
@@ -55,7 +60,7 @@ const AboutSettings = () => {
 
       const response = await AboutClient.updateAbout(updatedAboutData);
       console.log('About data updated successfully:', response);
-      setIsEditing(false); // Exit edit mode after saving
+      setIsEditing(false);
 
     } catch (error) {
       console.error('Error updating about data:', error);
@@ -67,7 +72,6 @@ const AboutSettings = () => {
       <div className='pl-[17%] p-8 bg-white'>
         <h1 className="text-3xl font-bold mb-6">Edit About Page Settings</h1>
 
-        {/* Edit/Cancel Button */}
         <div className="flex justify-end items-center mb-6">
           <button
             onClick={handleToggleEditMode}
@@ -76,7 +80,6 @@ const AboutSettings = () => {
             {isEditing ? 'Cancel Edit' : 'Edit'}
           </button>
 
-          {/* Save Changes Button */}
           {isEditing && (
             <button
               onClick={handleUpdateChanges}
@@ -87,38 +90,37 @@ const AboutSettings = () => {
           )}
         </div>
 
-        {/* Content Components in Grid Layout */}
         <div>
           {heroData ? (
-            <HeroSection 
-              isEditing={isEditing} 
-              hero={heroData} 
-              onUpdate={setHeroData} // Pass setter
+            <HeroSection
+              isEditing={isEditing}
+              hero={heroData}
+              onUpdate={setHeroData}
             />
           ) : (
             <p>Loading hero section...</p>
           )}
-          <NavbarSection 
-            isEditing={isEditing} 
-            navbar={navbarData} 
-            setNavbarData={setNavbarData} // Pass setter
+          <NavbarSection
+            isEditing={isEditing}
+            navbar={navbarData}
+            setNavbarData={setNavbarData}
           />
-          <AboutSection 
-            isEditing={isEditing} 
-            about={aboutData} 
-            onUpdate={setAboutData} // Pass setter
+          <AboutSection
+            isEditing={isEditing}
+            about={aboutData}
+            onUpdate={setAboutData}
           />
-          <LogosSection 
-            isEditing={isEditing} 
-            logos={logosData} 
-            setLogosData={setLogosData} // Pass setter
-            productText={productTextData} 
-            setProductTextData={setProductTextData} // Pass setter
+          <LogosSection
+            isEditing={isEditing}
+            logos={logosData}
+            setLogosData={setLogosData}
+            productText={productTextData}
+            setProductTextData={setProductTextData}
           />
-          <HowToReachSection 
-            isEditing={isEditing} 
-            howToReach={howToReachData} 
-            setHowToReachData={setHowToReachData} // Pass setter
+          <HowToReachSection
+            isEditing={isEditing}
+            howToReach={howToReachData}
+            setHowToReachData={setHowToReachData}
           />
         </div>
       </div>
@@ -127,3 +129,34 @@ const AboutSettings = () => {
 };
 
 export default AboutSettings;
+
+export const getServerSideProps = async (context) => {
+  const { req, res } = context;  
+
+  const cookies = req.headers.cookie; 
+
+  const parsedCookies = cookies
+    ? Object.fromEntries(cookies.split('; ').map(c => c.split('=')))
+    : {};
+
+  console.log('Parsed cookies:', parsedCookies);
+
+  const token = parsedCookies.token;  
+
+  if (!token || token.trim() === '') {
+    console.log("Redirecting to login due to missing or empty token...");
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+
+  return {
+    props: {
+      token,  
+    },
+  };
+};

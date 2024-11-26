@@ -6,6 +6,7 @@ import HelpSection from '@/components/support/HelpSection';
 import HelpKindForm from '@/components/support/HelpKindForm';
 import WhatsAppSection from '@/components/support/WhatsAppSection';
 import SupportClient from '../server/client/support';
+import { parseCookies } from 'nookies';
 
 const SupportSettings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -19,32 +20,33 @@ const SupportSettings = () => {
   });
   const [whatsappData, setWhatsAppData] = useState(null);
 
-  useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await SupportClient.fetchSupport('4'); // Use the correct ID or handle dynamically
-        console.log("support data: ", data);
+        const data = await SupportClient.fetchSupport('4');
+        console.log("support data: ", data);  
 
-        setNavbarData(data.data.navbar);
-        setHeroSectionData(data.data.heroSection);
-        setHelpSectionData(data.data.help || []);
-        setHelpKindData(data.data.helpKindData);
-        setWhatsAppData(data.data.whatsapp);
-
+        if (data && data.navbar && data.heroSection && data.help) {
+          setNavbarData(data.navbar || {});
+          setHeroSectionData(data.heroSection || {});
+          setHelpSectionData(data.help || []);
+          setHelpKindData(data.helpKindData || { heading: "", paragraph: "", Kindofhelp: [] });
+          setWhatsAppData(data.whatsapp || null);  
+        } else {
+          console.error('Invalid or missing properties in data:', data);
+        }
       } catch (error) {
         console.error('Error fetching support data:', error);
       }
     };
 
-    fetchData();
-  }, []);
+    useEffect(() => {
+      fetchData();
+    }, [])
 
-  // Toggle Edit Mode
   const handleToggleEditMode = () => {
     setIsEditing((prev) => !prev);
   };
 
-  // Handle Update Changes
   const handleUpdateChanges = async () => {
     try {
       const updatedSupportData = {
@@ -57,7 +59,7 @@ const SupportSettings = () => {
 
       const response = await SupportClient.updateSupport(updatedSupportData);
       console.log('Support data updated successfully:', response);
-      setIsEditing(false); // Exit edit mode after saving
+      setIsEditing(false);
 
     } catch (error) {
       console.error('Error updating support data:', error);
@@ -69,7 +71,6 @@ const SupportSettings = () => {
       <div className="pl-[17%] p-8 bg-white">
         <h1 className="text-3xl font-bold mb-6">Edit Support Page Settings</h1>
 
-        {/* Edit/Cancel Button */}
         <div className="flex justify-end items-center mb-6">
           <button
             onClick={handleToggleEditMode}
@@ -78,7 +79,6 @@ const SupportSettings = () => {
             {isEditing ? 'Cancel Edit' : 'Edit'}
           </button>
 
-          {/* Save Changes Button */}
           {isEditing && (
             <button
               onClick={handleUpdateChanges}
@@ -89,32 +89,31 @@ const SupportSettings = () => {
           )}
         </div>
 
-        {/* Content Components in Grid Layout */}
         <div>
           <NavbarSection
             isEditing={isEditing}
             navbar={navbarData}
-            setNavbarData={setNavbarData} // Pass setter to child
+            setNavbarData={setNavbarData}
           />
           <HeroSection
             isEditing={isEditing}
             hero={heroSectionData}
-            onUpdate={setHeroSectionData} // Pass setter to child
+            onUpdate={setHeroSectionData} 
           />
           <HelpSection
             isEditing={isEditing}
             helpItems={helpSectionData}
-            setHelpSectionData={setHelpSectionData} // Pass setter to child
+            setHelpSectionData={setHelpSectionData}
           />
           <HelpKindForm
             isEditing={isEditing}
             helpKindData={helpKindData}
-            setHelpKindData={setHelpKindData} // Pass setter to child
+            setHelpKindData={setHelpKindData}
           />
           <WhatsAppSection
             isEditing={isEditing}
             whatsappData={whatsappData}
-            setWhatsAppData={setWhatsAppData} // Pass setter to child
+            setWhatsAppData={setWhatsAppData}
           />
         </div>
       </div>
@@ -123,3 +122,25 @@ const SupportSettings = () => {
 };
 
 export default SupportSettings;
+
+export const getServerSideProps = async (context) => {
+  const cookies = parseCookies(context);
+
+  console.log('All cookies:', cookies);
+
+  const token = cookies.token;
+
+  if (!token || token.trim() === '') {
+    console.log("Redirecting to login due to missing or empty token...");
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {}, 
+  };
+};
