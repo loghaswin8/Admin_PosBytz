@@ -7,10 +7,9 @@ import { About } from './about.schema';
 export class AboutService {
   constructor(@InjectModel(About.name) private aboutModel: Model<About>) {}
 
-  // Fetch the entire about data (all sections)
   async getAboutData(): Promise<About> {
     try {
-      const result = await this.aboutModel.findOne({}); // Assuming only one document in 'About'
+      const result = await this.aboutModel.findOne({});
       console.log('Fetched about data:', result);
       return result;
     } catch (error) {
@@ -19,15 +18,12 @@ export class AboutService {
     }
   }
 
-  // Optionally, add more methods for other CRUD operations
-
-  // Create or update about data
   async upsertAboutData(aboutData: Partial<About>): Promise<About> {
     try {
       const result = await this.aboutModel.findOneAndUpdate(
         {},
         aboutData,
-        { new: true, upsert: true } // Create a new document if none exists
+        { new: true, upsert: true } 
       );
       console.log('Upserted about data:', result);
       return result;
@@ -37,7 +33,6 @@ export class AboutService {
     }
   }
 
-  // Delete all about data (if needed)
   async deleteAboutData(): Promise<{ deletedCount?: number }> {
     try {
       const result = await this.aboutModel.deleteMany({});

@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-// Define the schema for breadcrumb
 @Schema()
 export class Breadcrumb {
   @Prop({ required: true })
@@ -11,7 +10,6 @@ export class Breadcrumb {
   link: string;
 }
 
-// Define the schema for the hero section
 @Schema()
 export class HeroSection {
   @Prop({ required: true })
@@ -21,7 +19,6 @@ export class HeroSection {
   breadcrumbs: Breadcrumb[];
 }
 
-// Define the schema for the navbar
 @Schema()
 export class Navbar {
   @Prop({ required: true })
@@ -37,7 +34,6 @@ export class Navbar {
   linkColorScrolled: string;
 }
 
-// Define the schema for the header
 @Schema()
 export class Header {
   @Prop({ required: true })
@@ -47,7 +43,6 @@ export class Header {
   description: string;
 }
 
-// Define the schema for form placeholders
 @Schema()
 export class FormPlaceholders {
   @Prop({ required: true })
@@ -66,7 +61,6 @@ export class FormPlaceholders {
   phone: string;
 }
 
-// Define the contact schema
 @Schema({ timestamps: true })
 export class Contact extends Document {
   @Prop({ type: Navbar, required: true })
@@ -85,5 +79,4 @@ export class Contact extends Document {
   submitButton: string;
 }
 
-// Create the mongoose model
 export const ContactSchema = SchemaFactory.createForClass(Contact);

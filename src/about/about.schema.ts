@@ -16,7 +16,7 @@ class HeroSection {
   @Prop({ required: true })
   title: string;
 
-  @Prop({ type: [MongooseSchema.Types.Mixed], required: true }) // Use Mixed for embedded schema
+  @Prop({ type: [MongooseSchema.Types.Mixed], required: true })
   breadcrumbs: Breadcrumb[];
 }
 

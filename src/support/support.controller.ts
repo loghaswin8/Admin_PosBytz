@@ -6,7 +6,6 @@ import { Support } from './support.schema';
 export class SupportController {
   constructor(private readonly supportService: SupportService) {}
 
-  // Endpoint to fetch the entire support data
   @Get()
   async getSupportData() {
     try {
@@ -25,7 +24,6 @@ export class SupportController {
     }
   }
 
-  // Endpoint to upsert support data
   @Put()
   async upsertSupportData(@Body() supportData: Partial<Support>) {
     try {

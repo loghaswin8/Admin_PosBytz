@@ -18,12 +18,16 @@ export class SupportService {
     }
   }
 
-  // Create or update support data
-  async upsertSupportData(supportData: Partial<Support>): Promise<Support> {
+
+  async upsertSupportData(supportData: Partial<Support> & {_id?: string}): Promise<Support> {
     try {
+      const { _id, ...updateData } = supportData;
+      console.log('ID',_id);
+      console.log('updated data', updateData);
+
       const result = await this.supportModel.findOneAndUpdate(
-        {},
-        supportData,
+        {_id},
+        updateData,
         { new: true, upsert: true } 
       );
       console.log('Upserted support data:', result);
@@ -34,7 +38,6 @@ export class SupportService {
     }
   }
 
-  // Delete all support data (if needed)
   async deleteSupportData(): Promise<{ deletedCount?: number }> {
     try {
       const result = await this.supportModel.deleteMany({});

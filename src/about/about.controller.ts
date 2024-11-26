@@ -13,7 +13,6 @@ import { About } from './about.schema';
 export class AboutController {
   constructor(private readonly aboutService: AboutService) {}
 
-  // Endpoint to fetch the entire about data
   @Get()
   async getAboutData() {
     try {
@@ -35,7 +34,6 @@ export class AboutController {
     }
   }
 
-  // Endpoint to create or update the about data
   @Put()
   async upsertAboutData(@Body() aboutData: Partial<About>) {
     try {

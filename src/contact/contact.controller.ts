@@ -6,7 +6,6 @@ import { Contact } from './contact.schema';
 export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
-  // Endpoint to fetch the entire contact data
   @Get()
   async getContactData() {
     try {
@@ -25,7 +24,6 @@ export class ContactController {
     }
   }
 
-  // Endpoint to update or insert (upsert) contact data using PUT
   @Put()
   async upsertContactData(@Body() contactData: Partial<Contact>) {
     try {

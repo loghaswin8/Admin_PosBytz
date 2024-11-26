@@ -7,10 +7,9 @@ import { Career, CareerDocument } from './career.schema';
 export class CareerService {
   constructor(@InjectModel(Career.name) private careerModel: Model<CareerDocument>) {}
 
-  // Fetch the entire career data (all sections)
   async getCareerData(): Promise<Career> {
     try {
-      const result = await this.careerModel.findOne({}); // Assuming only one document in 'Career'
+      const result = await this.careerModel.findOne({}); 
       console.log('Fetched career data:', result);
       return result;
     } catch (error) {
@@ -19,13 +18,12 @@ export class CareerService {
     }
   }
 
-  // Create or update career data
   async upsertCareerData(careerData: Partial<Career>): Promise<Career> {
     try {
       const result = await this.careerModel.findOneAndUpdate(
         {},
         careerData,
-        { new: true, upsert: true } // Create a new document if none exists
+        { new: true, upsert: true }
       );
       console.log('Upserted career data:', result);
       return result;
@@ -35,7 +33,6 @@ export class CareerService {
     }
   }
 
-  // Delete all career data (if needed)
   async deleteCareerData(): Promise<{ deletedCount?: number }> {
     try {
       const result = await this.careerModel.deleteMany({});

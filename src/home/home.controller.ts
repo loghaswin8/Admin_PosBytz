@@ -1,12 +1,11 @@
 import { Controller, Get, Put, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { HomeService } from './home.service';
-import { Home } from './home.schema'; // Adjust based on your actual schema import
+import { Home } from './home.schema'; 
 
 @Controller('home')
 export class HomeController {
   constructor(private readonly homeService: HomeService) {}
 
-  // Endpoint to fetch the entire home data
   @Get()
   async getHomeData() {
     try {
@@ -17,7 +16,7 @@ export class HomeController {
         throw new HttpException('Home data not found', HttpStatus.NOT_FOUND);
       }
 
-      console.log('Home data fetched successfully:', homeData);
+      console.log('Home data fetched successfully');
       return homeData;
     } catch (error) {
       console.error('Error fetching home data:', error.message);
@@ -25,14 +24,13 @@ export class HomeController {
     }
   }
 
-  // Endpoint to create or update home data (upsert)
   @Put()
   async upsertHomeData(@Body() homeData: Partial<Home>) {
     try {
-      console.log('Upserting home data:', homeData);
+      console.log('Upserting home data');
       const updatedHomeData = await this.homeService.upsertHomeData(homeData);
 
-      console.log('Home data upserted successfully:', updatedHomeData);
+      console.log('Home data upserted successfully');
       return updatedHomeData;
     } catch (error) {
       console.error('Error upserting home data:', error.message);

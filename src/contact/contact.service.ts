@@ -7,10 +7,9 @@ import { Contact } from './contact.schema';
 export class ContactService {
   constructor(@InjectModel(Contact.name) private contactModel: Model<Contact>) {}
 
-  // Fetch the entire contact data (all sections)
   async getContactData(): Promise<Contact> {
     try {
-      const result = await this.contactModel.findOne({}); // Assuming only one document in 'Contact'
+      const result = await this.contactModel.findOne({});
       console.log('Fetched contact data:', result);
       return result;
     } catch (error) {
@@ -19,15 +18,12 @@ export class ContactService {
     }
   }
 
-  // Optionally, add more methods for other CRUD operations
-
-  // Create or update contact data
   async upsertContactData(contactData: Partial<Contact>): Promise<Contact> {
     try {
       const result = await this.contactModel.findOneAndUpdate(
         {},
         contactData,
-        { new: true, upsert: true } // Create a new document if none exists
+        { new: true, upsert: true } 
       );
       console.log('Upserted contact data:', result);
       return result;
@@ -37,7 +33,6 @@ export class ContactService {
     }
   }
 
-  // Delete all contact data (if needed)
   async deleteContactData(): Promise<{ deletedCount?: number }> {
     try {
       const result = await this.contactModel.deleteMany({});

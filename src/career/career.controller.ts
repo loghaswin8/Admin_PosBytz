@@ -6,7 +6,6 @@ import { Career } from './career.schema';
 export class CareerController {
   constructor(private readonly careerService: CareerService) {}
 
-  // Endpoint to fetch the entire career data
   @Get()
   async getCareerData() {
     try {
