@@ -28,7 +28,7 @@ const Login = () => {
 
     try {
       const result = await loginClient.loginUser(formData);
-      Cookies.set('token', result.token, { expires: 1});
+      Cookies.set('token', result.token, { expires: 1/86400});
       sessionStorage.setItem('token', result.token);
       const token = sessionStorage.getItem('token');  // Store token securely
       document.cookie = `token=${token}; path=/;`;

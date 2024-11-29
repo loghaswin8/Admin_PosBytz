@@ -6,6 +6,7 @@ import HeaderSection from '@/components/contact/HeaderSection';
 import ContactForm from '@/components/contact/ContactForm';
 import ContactClient from '../server/client/contact';
 import { parseCookies } from 'nookies';
+import { authenticateUser, validateToken } from '@/auth/authHelper';
 
 const ContactSettings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -115,32 +116,20 @@ const ContactSettings = () => {
 export default ContactSettings;
 
 export const getServerSideProps = async (context) => {
-  const { req, res } = context;  
+  const { req } = context;
 
-  const cookies = req.headers.cookie; 
+  const { valid, token, redirect } = validateToken(req);
 
-  const parsedCookies = cookies
-    ? Object.fromEntries(cookies.split('; ').map(c => c.split('=')))
-    : {};
-
-  console.log('Parsed cookies:', parsedCookies);
-
-  const token = parsedCookies.token;  
-
-  if (!token || token.trim() === '') {
-    console.log("Redirecting to login due to missing or empty token...");
+  if (!valid) {
+    console.log("Redirecting to login due to empty token...");
     return {
-      redirect: {
-        destination: '/login',
-        permanent: false,
-      },
+      redirect,
     };
   }
 
-
   return {
     props: {
-      token,  
+      token,
     },
   };
 };

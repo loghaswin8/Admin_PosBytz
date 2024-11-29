@@ -1,12 +1,13 @@
 import Layout from '../components/Layout';
 import nookies, { parseCookies } from 'nookies';
-
+import withAuth from '../components/withAuth'
+import { authenticateUser, validateToken } from '../auth/authHelper';
 
 const Home = () => {
   return (
     <Layout>
       <div className='pl-[17%]'>
-        <h1 className="text-3xl font-bold mb-4">Welcome to the Admin</h1>
+        <h1 className="text-3xl font-bold mb-4">Welcome to the Admin</h1>        
       </div>
     </Layout>
   );
@@ -15,24 +16,20 @@ const Home = () => {
 export default Home;
 
 export const getServerSideProps = async (context) => {
-  console.log(context);
-  const cookies = parseCookies(context);
-  
-  console.log('All cookies:', cookies);
+  const { req } = context;
 
-  const token = cookies.token;
+  const { valid, token, redirect } = validateToken(req);
 
-  if (!token || token.trim() === '') {
-    console.log("Redirecting to login due to missing or empty token...");
+  if (!valid) {
+    console.log("Redirecting to login due to empty token...");
     return {
-      redirect: {
-        destination: '/login',
-        permanent: false,
-      },
+      redirect,
     };
   }
 
   return {
-    props: {}, 
+    props: {
+      token,
+    },
   };
 };

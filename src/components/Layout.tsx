@@ -11,6 +11,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { href: '/contactSettings', label: 'Contact Us' },
     { href: '/supportSettings', label: 'Support' },
     { href: '/careersSettings', label: 'Careers' },
+    { href: '/userSettings', label: 'Users' },
+    { href: '/permissionSettings', label: 'Permission' },
+    { href: '/rolesSettings', label: 'Roles' },
   ];
 
   return (
@@ -43,3 +46,4 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default Layout;
+

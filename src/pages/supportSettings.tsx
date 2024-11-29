@@ -7,6 +7,7 @@ import HelpKindForm from '@/components/support/HelpKindForm';
 import WhatsAppSection from '@/components/support/WhatsAppSection';
 import SupportClient from '../server/client/support';
 import { parseCookies } from 'nookies';
+import { validateToken } from '@/auth/authHelper';
 
 const SupportSettings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -124,23 +125,20 @@ const SupportSettings = () => {
 export default SupportSettings;
 
 export const getServerSideProps = async (context) => {
-  const cookies = parseCookies(context);
+  const { req } = context;
 
-  console.log('All cookies:', cookies);
+  const { valid, token, redirect } = validateToken(req);
 
-  const token = cookies.token;
-
-  if (!token || token.trim() === '') {
-    console.log("Redirecting to login due to missing or empty token...");
+  if (!valid) {
+    console.log("Redirecting to login due to empty token...");
     return {
-      redirect: {
-        destination: '/login',
-        permanent: false,
-      },
+      redirect,
     };
   }
 
   return {
-    props: {}, 
+    props: {
+      token,
+    },
   };
 };

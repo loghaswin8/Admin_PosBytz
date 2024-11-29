@@ -16,6 +16,7 @@ import nookies, { parseCookies } from 'nookies';
 import { redirect } from 'next/dist/server/api-utils';
 import { useRouter } from 'next/router';
 import { GetServerSidePropsContext } from 'next';  // Import the type
+import { validateToken } from '@/auth/authHelper';
 
 
 
@@ -224,37 +225,20 @@ const HomeSettings = () => {
 export default HomeSettings;
 
 export const getServerSideProps = async (context) => {
-  const { req, res } = context;  
+  const { req } = context;
 
-  const cookies = req.headers.cookie; 
+  const { valid, token, redirect } = validateToken(req);
 
-  const parsedCookies = cookies
-    ? Object.fromEntries(cookies.split('; ').map(c => c.split('=')))
-    : {};
-
-  console.log('Parsed cookies:', parsedCookies);
-
-  const token = parsedCookies.token;  
-
-  if (!token || token.trim() === '') {
-    console.log("Redirecting to login due to missing or empty token...");
+  if (!valid) {
+    console.log("Redirecting to login due to empty token...");
     return {
-      redirect: {
-        destination: '/login',
-        permanent: false,
-      },
+      redirect,
     };
   }
 
-
   return {
     props: {
-      token,  
+      token,
     },
   };
 };
-
-
-
-
-
