@@ -14,6 +14,8 @@ import { LoginModule } from './login/login.module';
 import { RegisterModule } from './register/register.module';
 import { LoginController } from './login/login.controller';
 import { RegisterController } from './register/register.controller';
+import { PermissionModule } from './permission/permission.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { RegisterController } from './register/register.controller';
     ContactModule, 
     SupportModule,
     CareerModule,
+    PermissionModule,
+    RolesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -37,7 +41,7 @@ import { RegisterController } from './register/register.controller';
 })
 export class AppModule{ 
   // configure(consumer: MiddlewareConsumer) {
-    // Apply the LoggerMiddleware to all routes except LoginController and RegisterController
+  // Apply the LoggerMiddleware to all routes except LoginController and RegisterController
   //   consumer
   //     .apply(LoggerMiddleware)
   //     .exclude(
